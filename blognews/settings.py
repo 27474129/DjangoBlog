@@ -1,24 +1,16 @@
 import os
 from pathlib import Path
+from blognews import config
 
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+SECRET_KEY = config.SECRET_KEY
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-pnc#stt)l4!(=h^fg5)^ex1x$g^uafk15s!z$i=09!@ah2dv(x'
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ["127.0.0.1"]
 
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -68,9 +60,9 @@ WSGI_APPLICATION = 'blognews.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'ukrainenews',
-        'USER': 'postgres',
-        'PASSWORD': '27474129',
+        'NAME': config.DB_NAME,
+        'USER': config.DB_USER,
+        'PASSWORD': config.DB_PASSWORD,
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -97,10 +89,16 @@ LOGGING = {
         },
 
         'debug': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'general_format',
         },
+
+        'info': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'general_format',
+        }
     },
 
     'loggers': {
@@ -112,6 +110,12 @@ LOGGING = {
 
         'debug': {
             'handlers': ['debug'],
+            'level': 'DEBUG',
+            'propodate': True,
+        },
+
+        'info': {
+            'handlers': ['info'],
             'level': 'INFO',
             'propodate': True,
         },
@@ -136,9 +140,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/3.2/topics/i18n/
-
 LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'UTC'
@@ -150,13 +151,7 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
-
 STATIC_URL = '/static/'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
