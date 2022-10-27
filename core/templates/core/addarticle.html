@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Article</title>
+</head>
+<body>
+    <h1 style="color:red;">Adding article process</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for error in errors %}
+            <div>{{ error }}</div>
+        {% endfor %}
+        {{ form.title }}
+        {{ form.photo }}
+        {{ form.content }}
+        <button type="submit">Add</button>
+    </form>
+</body>
+</html>

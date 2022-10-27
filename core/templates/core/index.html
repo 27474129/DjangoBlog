@@ -1,0 +1,51 @@
+{% load static %}
+{% load core_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ukraine News</title>
+</head>
+<body>
+    <div>
+        <h2><a href="{% url 'auth' %}">ВХОД</a></h2>
+        <h2><a href="{% url 'reg' %}">Регистрация</a></h2>
+        {% for article in articles %}
+            {% if article.is_published %}
+                <img style="height: 100px; width: 100px" src="media/{{ article.photo }}">
+                <a href="{{ article.slug|get_article_url }}"><h2>{{ article.title }}</h2></a>
+                <div>{{ article.pk }}</div>
+                <div>{{ article.who_uploaded }}</div>
+                <div>{{ article.publication_time }}</div>
+                <div>{{ article.content }}</div>
+                {% if article.pk not in likes.keys %}
+                    <span>Количество лайков: 0</span>
+                {% endif %}
+                {% if article.pk not in dislikes.keys %}
+                    <span>Количество дизлайков: 0</span>
+                {% endif %}
+                {% for key, value in likes.items %}
+                    {% if key == article.pk %}
+                        <span>Количество лайков: {{ value }}</span>
+                    {% endif %}
+                {% endfor %}
+                {% for key, value in dislikes.items %}
+                    {% if key == article.pk %}
+                        <span>Количество дизлайков: {{ value }}</span>
+                    {% endif %}
+                {% endfor %}
+                {% if not request.session.keys %}
+                    <div><a href="{% url 'auth' %}">Лайк</a></div>
+                    <div><a href="{% url 'auth' %}">Дизлайк</a></div>
+                {% else %}
+                    <button>Лайк</button>
+                    <button>Дизлайк</button>
+                {% endif %}
+                <br>
+                <br>
+            {% endif %}
+        {% endfor %}
+    </div>
+    <script type="text/javascript" src="{% static 'js/main.js' %}"></script>
+</body>
+</html>
