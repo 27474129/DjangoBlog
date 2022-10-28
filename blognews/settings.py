@@ -75,7 +75,7 @@ LOGGING = {
 
     'formatters': {
         'general_format': {
-            'format': '---------------------------------{asctime} - {levelname} - {module} - {filename} - {message}',
+            'format': '{asctime} - {levelname} - {module} - {filename} - {message}',
             'style': '{'
         },
     },
@@ -138,7 +138,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 LANGUAGE_CODE = 'ru'
 

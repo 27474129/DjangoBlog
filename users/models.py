@@ -1,4 +1,6 @@
 from django.db import models
+from .validators import UserValidators
+
 
 class User(models.Model):
     firstname = models.CharField(max_length=255)
@@ -8,5 +10,3 @@ class User(models.Model):
 
     class Meta:
         app_label = 'users'
-
-    

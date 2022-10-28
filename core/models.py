@@ -6,7 +6,7 @@ from random import randint
 def validate_title_length(title):
     if len(title) < 3:
         raise ValidationError(
-            "Название статьи должно содержать минимум 3 символа"
+            ["asd", "zxc"]
         )
 
 

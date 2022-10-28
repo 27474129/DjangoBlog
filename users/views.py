@@ -5,7 +5,7 @@ from core.views import BaseView
 from .forms import RegForm, AuthForm
 from django.urls import reverse_lazy
 from django.core.exceptions import ValidationError
-from .repository import UsersRepository
+from .repository import UserRepository
 from .models import User
 from .services import AuthPageService
 from django.contrib.auth.views import LogoutView

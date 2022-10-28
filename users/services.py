@@ -1,25 +1,21 @@
 import logging
-from .repository import UsersRepository
+from .repository import UserRepository
 from argon2 import PasswordHasher
-from argon2.exceptions import VerificationError
+from argon2.exceptions import InvalidHash
 
-
-logger = logging.getLogger("debug")
+logger = logging.getLogger("info")
 
 
 class AuthPageService:
     @staticmethod
     def __check_data(entered_email: str, entered_password: str) -> bool:
-        user = UsersRepository.get_user_by_email(entered_email)
+        user = UserRepository.get_user_by_email(entered_email)
+        if user is None:
+            return False
         try:
-            logger.info("checking data")
-            logger.info("password from db: " + user.password)
-            logger.info("entered password: " + entered_password)
             PasswordHasher().verify(user.password, entered_password)
-            logger.info("passwords are the same")
             return True if entered_email == user.email else False
-        except VerificationError:
-            logger.info("Verification error")
+        except InvalidHash:
             return False
 
     @staticmethod
@@ -33,8 +29,8 @@ class AuthPageService:
         entered_password = request.POST["password"]
         if AuthPageService.__check_data(entered_email, entered_password):
             AuthPageService.__authenticate(request, entered_email)
-            logger.info("authenticated")
+            logger.debug("authenticated")
             return True
         else:
-            logger.info("incorrect username or password")
+            logger.debug("incorrect username or password")
             return False

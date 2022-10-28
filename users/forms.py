@@ -1,9 +1,15 @@
 import re
+import logging
 from django import forms
 from .models import User
 from django.core.exceptions import ValidationError
 from argon2 import PasswordHasher
-from argon2.exceptions import VerificationError
+from argon2.exceptions import VerificationError, InvalidHash
+from .repository import UserRepository
+from .validators import UserValidators
+
+
+logger = logging.getLogger("info")
 
 
 class RegForm(forms.ModelForm):
@@ -16,20 +22,36 @@ class RegForm(forms.ModelForm):
             "password": forms.PasswordInput,
         }
 
+    def clean_firstname(self):
+        firstname = self.cleaned_data.get("firstname")
+        raise ValidationError(UserValidators.validate_firstname(firstname))
+
+    def clean_secondname(self):
+        secondname = self.cleaned_data.get("secondname")
+        raise ValidationError(UserValidators.validate_secondname(secondname))
+
     def clean_email(self):
         email = self.cleaned_data.get("email")
-        if User.objects.filter(email=email).exists():
+        if UserRepository.check_is_user_already_exists(email):
             raise ValidationError("Email занят!")
         return email
 
     def clean_password(self):
         password = self.cleaned_data.get("password")
-        return PasswordHasher().hash(password)
+        errors = UserValidators.validate_password(password)
+        if len(errors) == 0:
+            return PasswordHasher().hash(password)
+        else:
+            raise ValidationError(errors)
 
     def clean_password2(self):
         password = self.cleaned_data.get("password")
         password2 = self.cleaned_data.get("password2")
+        if password is None:
+            return password2
         try:
+            logger.debug(password2)
+            logger.debug(password)
             PasswordHasher().verify(password, password2)
         except VerificationError:
             raise ValidationError("Пароли не совпадают")
@@ -43,8 +65,3 @@ class AuthForm(forms.ModelForm):
         widgets = {
             "password": forms.PasswordInput,
         }
-
-    #def clean_email(self):
-        #email = self.cleaned_data.get("email")
-        #password = self.cleaned_data.get("password")
-
