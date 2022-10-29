@@ -4,7 +4,7 @@ from random import randint
 from .forms import AddArticleForm
 from .repository import ArticleMarkRepository, CommentRepository
 from django.db.models import QuerySet
-from core.models import Mark
+from core.models import Mark, Article
 
 
 logger = logging.getLogger("debug")
@@ -12,16 +12,16 @@ logger = logging.getLogger("debug")
 
 class Serializing:
     @staticmethod
-    def serialize(object):
+    def serialize(object) -> str:
         return json.dumps(object)
 
     @staticmethod
-    def deserialize(object):
+    def deserialize(object) -> dict or list:
         return json.loads(object)
 
 
 class AddArticlePageService:
-    def __check_form_data(self, request) -> bool:
+    def __check_form_data(self, request) -> list:
         form_data = {
             "title": request.POST["title"],
             "content": request.POST["content"],
@@ -29,26 +29,26 @@ class AddArticlePageService:
             "slug": randint(1, 10000000),
         }
         form = AddArticleForm(form_data, request.FILES)
-        self.form = form
-        return True if form.is_valid() else False
+        logger.debug(form.errors)
+        return [form, True] if form.is_valid() else [form, False]
 
-    def __save_form(self) -> QuerySet:
-        return self.form.save()
+    def __save_form(self, form: AddArticleForm) -> Article:
+        return form.save()
 
-    def __get_validation_errors(self) -> str:
+    def __get_validation_errors(self, form: AddArticleForm) -> str:
         errors = ""
-        logger.info(self.form.errors)
-        for field in self.form.errors:
-            for error in self.form.errors[field]:
+        logger.info(form.errors)
+        for field in form.errors:
+            for error in form.errors[field]:
                 errors += error + ";"
         return errors
 
     @staticmethod
-    def __allocate_space_for_marks(article_instance: QuerySet) -> None:
+    def __allocate_space_for_marks(article_instance: Article) -> None:
         ArticleMarkRepository.allocate_space_for_marks(article_instance)
 
     @staticmethod
-    def __allocate_space_for_comments(article_instance: QuerySet) -> None:
+    def __allocate_space_for_comments(article_instance: Article) -> None:
         CommentRepository.allocate_space_for_comments(article_instance)
 
     @staticmethod
@@ -56,12 +56,13 @@ class AddArticlePageService:
         return errors.split(";")
 
     def execute_service(self, request) -> None or str:
-        if self.__check_form_data(request):
-            logger.info(self.__save_form())
-            self.__allocate_space_for_marks(self.__save_form())
-            self.__allocate_space_for_comments(self.__save_form())
+        form, is_valid = self.__check_form_data(request)
+        if is_valid:
+            article_instance = self.__save_form(form)
+            self.__allocate_space_for_marks(article_instance)
+            self.__allocate_space_for_comments(article_instance)
         else:
-            return self.__get_validation_errors()
+            return self.__get_validation_errors(form)
 
 
 class UserMarkService(Serializing):
@@ -168,7 +169,7 @@ class UserCommentService(Serializing):
         pass
 
     def __validate_comment(self) -> bool:
-        return True if "блять" not in self.__comment else False
+        return True if "fuck" not in self.__comment else False
 
     def __add_comment(self) -> None:
         article_comments, articles_comments = CommentRepository.get_comments_by_article_id(self.__article_id)
