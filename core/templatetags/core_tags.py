@@ -1,7 +1,7 @@
 import logging
 import requests
 from django import template
-from core.services import UserMarkService, UserCommentService
+from api.services import UserMarkService, UserCommentService
 from django.urls import reverse, reverse_lazy
 
 

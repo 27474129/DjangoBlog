@@ -1,8 +1,9 @@
 from django.urls import path
-from .views import MarkView, CommentView
+from .views import MarkView, CommentView, UserView
 
 
 urlpatterns = [
-    path("mark/", MarkView.as_view()),
-    path("comment/", CommentView.as_view()),
+    path("mark", MarkView.as_view()),
+    path("comment", CommentView.as_view()),
+    path("user", UserView.as_view()),
 ]

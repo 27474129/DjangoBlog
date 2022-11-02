@@ -25,7 +25,7 @@ class CoreViewsTest(TestCase, ArticleCreation):
 
     def test_article_page(self):
         new_article = super().create_new_article()
-        response = self.client.get(reverse("article") + new_article.slug)
+        response = self.client.get(reverse("article") + str(new_article.slug))
         logger.debug(f"GET request to url: {settings.ALLOWED_HOSTS[0]}:8000{reverse('article')}{new_article.slug}")
         self.assertEqual(response.status_code, 200)
         logger.debug("Tested: ArticlePage: ---OK")

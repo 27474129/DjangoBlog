@@ -18,17 +18,3 @@ class Article(models.Model):
     is_published = models.BooleanField(default=False)
     publication_time = models.DateTimeField(null=True)
     slug = models.SlugField(unique=True, null=True)
-
-    class Meta:
-        app_label = 'core'
-
-
-class Mark(models.Model):
-    article = models.OneToOneField(Article, on_delete=models.CASCADE)
-    users_liked = models.JSONField()
-    users_disliked = models.JSONField()
-
-
-class Comment(models.Model):
-    article = models.OneToOneField(Article, on_delete=models.CASCADE)
-    comments = models.JSONField()

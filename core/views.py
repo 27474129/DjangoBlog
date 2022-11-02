@@ -9,9 +9,9 @@ from .forms import AddArticleForm
 from django.shortcuts import render
 from .services import AddArticlePageService
 from django.db.models import F
-from core.services import UserMarkService
+from api.services import UserMarkService
 from django.http import HttpResponseNotFound
-from .repository import ArticleMarkRepository
+from .repository import ArticleRepository
 
 
 logger = logging.getLogger("debug")
@@ -73,7 +73,7 @@ class ArticlePage(TemplateView):
     article = None
 
     def get(self, request, *args, **kwargs):
-        article = ArticleMarkRepository.get_article_by_slug(kwargs["article_slug"])
+        article = ArticleRepository.get_article_by_slug(kwargs["article_slug"])
         if article is None or not article.is_published:
             return HttpResponseNotFound()
         self.article = article

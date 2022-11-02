@@ -1,10 +1,16 @@
 import re
+import logging
 from django.core.exceptions import ValidationError
+from django.http import QueryDict
+from users.repository import UserRepository
+
+
+logger = logging.getLogger("debug")
 
 
 class UserValidators:
     @staticmethod
-    def get_letters_and_digits_count(value):
+    def get_letters_and_digits_count(value: str) -> list:
         result = []
         result.append(len(re.findall(r"[а-я]", value)))
         result.append(len(re.findall(r"[А-Я]", value)))
@@ -14,7 +20,7 @@ class UserValidators:
         return result
 
     @staticmethod
-    def validate_firstname(firstname):
+    def validate_firstname(firstname: str) -> list:
         errors = []
         if len(firstname) < 2:
             errors.append("Имя должно содержать не менее 2х символов")
@@ -30,7 +36,7 @@ class UserValidators:
         return errors
 
     @staticmethod
-    def validate_secondname(secondname):
+    def validate_secondname(secondname: str) -> list:
         errors = []
         if len(secondname) < 2:
             errors.append("Фамилия должна содержать не менее 2х символов")
@@ -46,7 +52,7 @@ class UserValidators:
         return errors
 
     @staticmethod
-    def validate_password(password):
+    def validate_password(password: str) -> list:
         errors = []
         if len(password) < 6:
             errors.append("Пароль должен содержать минимум 6 символов")
@@ -54,5 +60,26 @@ class UserValidators:
         letters_and_digits_count = UserValidators.get_letters_and_digits_count(password)
         if letters_and_digits_count[-1] == 0:
             errors.append("Пароль должен содержать минимум одну цифру")
+
+        return errors
+
+    @staticmethod
+    def validate_email(email: str) -> str or bool:
+        return "Email уже занят!" if UserRepository.check_is_user_already_exists(email) else False
+
+    def execute_validators(self, data: QueryDict) -> list:
+        errors = []
+        for error in self.validate_firstname(data["firstname"]):
+            errors.append(error)
+
+        for error in self.validate_secondname(data["secondname"]):
+            errors.append(error)
+
+        email_validation_result = self.validate_email(data["email"])
+        if type(email_validation_result) is str:
+            errors.append(email_validation_result)
+
+        for error in self.validate_password(data["password"]):
+            errors.append(error)
 
         return errors

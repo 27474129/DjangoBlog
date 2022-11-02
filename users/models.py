@@ -1,5 +1,5 @@
 from django.db import models
-from .validators import UserValidators
+from django.contrib.auth.models import AbstractUser
 
 
 class User(models.Model):
@@ -7,6 +7,3 @@ class User(models.Model):
     secondname = models.CharField(max_length=255)
     email = models.EmailField()
     password = models.TextField()
-
-    class Meta:
-        app_label = 'users'

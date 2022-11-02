@@ -24,15 +24,21 @@ class RegForm(forms.ModelForm):
 
     def clean_firstname(self):
         firstname = self.cleaned_data.get("firstname")
-        raise ValidationError(UserValidators.validate_firstname(firstname))
+        errors = UserValidators.validate_firstname(firstname)
+        if len(errors) != 0:
+            raise ValidationError(errors)
+        return firstname
 
     def clean_secondname(self):
         secondname = self.cleaned_data.get("secondname")
-        raise ValidationError(UserValidators.validate_secondname(secondname))
+        errors = UserValidators.validate_secondname(secondname)
+        if len(errors) != 0:
+            raise ValidationError(errors)
+        return secondname
 
     def clean_email(self):
         email = self.cleaned_data.get("email")
-        if UserRepository.check_is_user_already_exists(email):
+        if not UserValidators.validate_email(email):
             raise ValidationError("Email занят!")
         return email
 
