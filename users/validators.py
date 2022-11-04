@@ -5,7 +5,7 @@ from django.http import QueryDict
 from users.repository import UserRepository
 
 
-logger = logging.getLogger("debug")
+logger = logging.getLogger("info")
 
 
 class UserValidators:
@@ -67,7 +67,7 @@ class UserValidators:
     def validate_email(email: str) -> str or bool:
         return "Email уже занят!" if UserRepository.check_is_user_already_exists(email) else False
 
-    def execute_validators(self, data: QueryDict) -> list:
+    def execute_validators(self, data: dict, mode="") -> list:
         errors = []
         for error in self.validate_firstname(data["firstname"]):
             errors.append(error)
@@ -75,9 +75,10 @@ class UserValidators:
         for error in self.validate_secondname(data["secondname"]):
             errors.append(error)
 
-        email_validation_result = self.validate_email(data["email"])
-        if type(email_validation_result) is str:
-            errors.append(email_validation_result)
+        if mode != "without_email_validation":
+            email_validation_result = self.validate_email(data["email"])
+            if type(email_validation_result) is str:
+                errors.append(email_validation_result)
 
         for error in self.validate_password(data["password"]):
             errors.append(error)
