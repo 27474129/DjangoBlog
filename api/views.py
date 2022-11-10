@@ -38,8 +38,7 @@ class MarkView(BaseAPIView):
             user_email=user_email,
             mark=mark
         ).execute()
-        json_response = JSONRenderer().render({"success": True})
-        return Response(json_response)
+        return Response({"success": True})
 
 
 class CommentView(BaseAPIView):
@@ -53,9 +52,9 @@ class CommentView(BaseAPIView):
             comment=comment,
         ).execute()
         if not comment_adding_result:
-            return Response(JSONRenderer().render({"success": True}))
+            return Response({"success": True})
 
-        return Response(JSONRenderer().render({"success": True}))
+        return Response({"success": True})
 
 
 class UserView(BaseAPIView):
@@ -66,7 +65,7 @@ class UserView(BaseAPIView):
     def post(self, request):
         status, response_data = UserAPIService.post(request)
         if status:
-            return Response(JSONRenderer().render({"success": True, "new_user": response_data}))
+            return Response({"success": True, "new_user": response_data})
         else:
             return Response({"success": False, "errors": response_data}, status=400)
 
