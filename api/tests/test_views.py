@@ -28,12 +28,13 @@ class UserViewTest(TestCase):
     def test_get_method(self):
         request_url = f'{reverse("user_")}{self.base_params}'
         response = self.client.post(request_url)
-        new_user_id = Serializing.deserialize(response.data)[0]["new_user"]["id"]
+        new_user_id = Serializing.deserialize(response.data)["new_user"]["id"]
 
         request_url = f'{reverse("user_")}'
-        response = Serializing.deserialize(self.client.get(request_url).data)
-        self.assertEqual(response[0]["users"][0]["id"], new_user_id)
-        self.assertEqual(response[0]["success"], True)
+        response = self.client.get(request_url)
+        response = Serializing.deserialize(response.data)
+        self.assertEqual(response["users"][0]["id"], new_user_id)
+        self.assertEqual(response["success"], True)
 
         cursor = connection.cursor()
         cursor.execute("TRUNCATE TABLE users_user")
@@ -43,7 +44,7 @@ class UserViewTest(TestCase):
     def test_delete_method(self):
         request_url = f'{reverse("user_")}{self.base_params}'
         response = self.client.post(request_url)
-        new_user_id = Serializing.deserialize(response.data)[0]["new_user"]["id"]
+        new_user_id = Serializing.deserialize(response.data)["new_user"]["id"]
 
         request_url = f"{reverse('user_')}?pk={new_user_id}"
         response = self.client.delete(request_url)
@@ -61,10 +62,11 @@ class UserViewTest(TestCase):
 
     def test_put_method(self):
         response = self.client.post(f"{reverse('user_')}{self.base_params}")
-        new_user_id = Serializing.deserialize(response.data)[0]["new_user"]["id"]
+        new_user_id = Serializing.deserialize(response.data)["new_user"]["id"]
 
-        response = Serializing.deserialize(self.client.put(f"{reverse('user_')}?pk={new_user_id}&secondname=asd").data)
-        self.assertEqual(response[0]["updated_user"]["secondname"], "asd")
+        response = self.client.put(f"{reverse('user_')}?pk={new_user_id}&secondname=asd")
+        response = Serializing.deserialize(response.data)
+        self.assertEqual(response["updated_user"]["secondname"], "asd")
 
         response = self.client.put(f"{reverse('user_')}?pk={new_user_id}&secondname=asd&firstname=asdasdasasdas")
         self.assertEqual(response.status_code, 400)

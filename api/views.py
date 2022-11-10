@@ -6,7 +6,7 @@ from core.repository import ArticleRepository
 from .repository import CommentRepository, MarkRepository
 from core.models import Article
 from rest_framework.request import Request
-from .services import UserMarkService, UserCommentService
+from .services import UserMarkService, UserCommentService, UserAPIService
 from core.repository import ArticleRepository
 from users.repository import UserRepository
 from .serializers import UserSerializer
@@ -38,7 +38,7 @@ class MarkView(BaseAPIView):
             user_email=user_email,
             mark=mark
         ).execute()
-        json_response = JSONRenderer().render([{"success": True}])
+        json_response = JSONRenderer().render({"success": True})
         return Response(json_response)
 
 
@@ -53,37 +53,34 @@ class CommentView(BaseAPIView):
             comment=comment,
         ).execute()
         if not comment_adding_result:
-            return Response(JSONRenderer().render([{"success": True}]))
+            return Response(JSONRenderer().render({"success": True}))
 
-        return Response(JSONRenderer().render([{"success": True}]))
+        return Response(JSONRenderer().render({"success": True}))
 
 
 class UserView(BaseAPIView):
     def get(self, request):
         users = UserRepository.get_all()
-        return Response(JSONRenderer().render([{"success": True, "users": UserSerializer(users, many=True).data}]))
+        return Response({"success": True, "users": UserSerializer(users, many=True).data})
 
     def post(self, request):
-        serializer = UserSerializer(data=request.query_params)
-        serializer.is_valid(raise_exception=True)
-        errors = UserValidators().execute_validators(data=request.query_params)
-        if len(errors) == 0:
-            serializer.save()
-            return Response(JSONRenderer().render([{"success": True, "new_user": serializer.data}]))
+        status, response_data = UserAPIService.post(request)
+        if status:
+            return Response(JSONRenderer().render({"success": True, "new_user": response_data}))
         else:
-            return Response(JSONRenderer().render([{"success": False, "errors": errors}]), status=400)
+            return Response({"success": False, "errors": response_data}, status=400)
 
     def put(self, request):
         pk = request.query_params.get("pk", None)
         if pk is None:
-            return Response(JSONRenderer().render([{"success": False, "error": "Вы не передали параметр id"}]), status=400)
+            return Response({"success": False, "error": "Вы не передали параметр id"}, status=400)
 
         if len(request.query_params) != 2:
-            return Response(JSONRenderer().render([{"success": False, "error": "Слишком много аргументов в запросе"}]), status=400)
+            return Response({"success": False, "error": "Слишком много аргументов в запросе"}, status=400)
 
         user = UserRepository.get_user_by_pk(pk)
         if user is None:
-            return Response(JSONRenderer().render([{"success": False, "error": "Пользователь с таким id не найден"}]), status=404)
+            return Response({"success": False, "error": "Пользователь с таким id не найден"}, status=404)
 
         data = {
             "firstname": request.query_params.get("firstname", None),
@@ -110,18 +107,18 @@ class UserView(BaseAPIView):
 
         if len(errors) == 0:
             serializer.save()
-            return Response(JSONRenderer().render([{"success": True, "updated_user": serializer.data}]))
+            return Response({"success": True, "updated_user": serializer.data})
         else:
-            return Response(JSONRenderer().render([{"success": False, "errors": errors}]), status=400)
+            return Response({"success": False, "errors": errors}, status=400)
 
     def delete(self, request):
         pk = request.query_params.get("pk", None)
         if pk is None:
-            return Response(JSONRenderer().render([{"success": False, "error": "Вы не передали id записи"}]), status=400)
+            return Response({"success": False, "error": "Вы не передали id записи"}, status=400)
 
         deleted_user = UserRepository.delete_user(pk)
 
         if deleted_user is not None:
-            return Response(JSONRenderer().render([{"success": True}]))
+            return Response({"success": True})
         else:
-            return Response(JSONRenderer().render([{"success": False, "error": "Юзер не существует"}]), status=404)
+            return Response({"success": False, "error": "Юзер не существует"}, status=404)

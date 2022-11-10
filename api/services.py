@@ -5,6 +5,8 @@ from .repository import MarkRepository, CommentRepository
 from django.db.models import QuerySet
 from .models import Mark
 from core.models import Article
+from .serializers import UserSerializer
+from users.validators import UserValidators
 
 
 logger = logging.getLogger("info")
@@ -144,3 +146,16 @@ class UserCommentService(Serializing):
             return True
         else:
             return False
+
+
+class UserAPIService:
+    @staticmethod
+    def post(request) -> list:
+        serializer = UserSerializer(data=request.query_params)
+        serializer.is_valid(raise_exception=True)
+        errors = UserValidators().execute_validators(data=request.query_params)
+        if len(errors) == 0:
+            serializer.save()
+            return [True, serializer.data]
+        else:
+            return [False, errors]

@@ -12,7 +12,7 @@ logger = logging.getLogger("debug")
 
 class SerializingTest(TestCase):
     def test_serialize(self):
-        result = Serializing.serialize([{"key": "value"}])
+        result = Serializing.serialize({"key": "value"})
         self.assertEqual(type(result), str)
         logger.debug("serialize() method is ---OK")
 

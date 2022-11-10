@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='article',
             name='title',
-            field=models.CharField(max_length=255, validators=[core.models.validate_title_length]),
+            field=models.CharField(max_length=255),
         ),
     ]
